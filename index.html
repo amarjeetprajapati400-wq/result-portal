@@ -1,94 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Super Educated Class - Admission Test Result</title>
+  <!-- jsPDF + AutoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f6fc;
-      margin: 0;
-      padding: 0;
+    :root{
+      --brand:#0b5cff;
+      --brand-dark:#0846c7;
+      --ok:#14803d;
+      --bad:#c1121f;
+      --bg:#f5f7fd;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
     }
-    header {
-      background: #004080;
-      color: #fff;
-      text-align: center;
-      padding: 20px;
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+    header{
+      background: linear-gradient(135deg,#0b5cff,#6aa3ff);
+      color:#fff;text-align:center;padding:28px 16px
     }
-    .container {
-      max-width: 500px;
-      background: #fff;
-      margin: 40px auto;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    header h1{margin:0;font-size:28px;letter-spacing:.3px}
+    header p{margin:6px 0 0;font-weight:600}
+    .wrap{max-width:980px;margin:22px auto;padding:0 14px}
+    .card{
+      background:var(--card);border-radius:16px;box-shadow:0 10px 30px rgba(11,92,255,.08);
+      padding:22px
     }
-    label, select, input {
-      display: block;
-      margin: 10px 0;
-      width: 100%;
-      font-size: 16px;
-      padding: 8px;
+    .grid{display:grid;gap:14px}
+    .grid-2{grid-template-columns:1fr 1fr}
+    label{font-weight:600;font-size:14px;color:var(--muted)}
+    input,select,button{
+      width:100%;font-size:16px;padding:12px 12px;border:1px solid #e5e7eb;border-radius:10px;outline:none;
+      transition:.2s background,.2s border
     }
-    button {
-      width: 100%;
-      padding: 10px;
-      background: #004080;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 8px;
+    input:focus,select:focus{border-color:var(--brand)}
+    .btn{background:var(--brand);color:#fff;border:none;cursor:pointer;font-weight:700}
+    .btn:hover{background:var(--brand-dark)}
+    .btn.secondary{background:#111827}
+    .btn.warn{background:#f59e0b}
+    .btn.danger{background:#dc2626}
+    .hint{color:var(--muted);font-size:13px;margin-top:4px}
+
+    /* Countdown / Lock screen */
+    #lock{
+      max-width:780px;margin:28px auto;padding:20px;border-radius:16px;background:#fff;
+      box-shadow:0 10px 30px rgba(0,0,0,.06);text-align:center
     }
-    button:hover {
-      background: #0066cc;
+    .timer{
+      display:flex;justify-content:center;gap:14px;margin-top:12px;flex-wrap:wrap
     }
+    .pill{
+      background:#eef3ff;border:1px solid #dbe6ff;border-radius:12px;padding:10px 14px;min-width:90px
+    }
+    .pill b{display:block;font-size:22px}
+    .pill span{font-size:12px;color:var(--muted)}
+    .muted{color:var(--muted)}
+    .center{display:flex;justify-content:center}
+
     /* Popup */
-    .popup {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.6);
-      justify-content: center;
-      align-items: center;
+    .popup{display:none;position:fixed;inset:0;backdrop-filter:blur(2px);background:rgba(0,0,0,.45);
+      align-items:center;justify-content:center;padding:16px}
+    .popup-content{
+      background:#fff;max-width:560px;width:100%;border-radius:16px;padding:18px 18px 22px;
+      box-shadow:0 10px 30px rgba(0,0,0,.25);text-align:center;position:relative
     }
-    .popup-content {
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 500px;
-      width: 90%;
-      text-align: center;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      animation: fadeIn 0.3s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from {opacity: 0; transform: scale(0.9);}
-      to {opacity: 1; transform: scale(1);}
-    }
-    .close-btn {
-      background: crimson;
-    }
-    .pdf-btn {
-      background: green;
-    }
-    .next-btn {
-      background: orange;
-    }
-    .logo {
-      width: 80px;
-      margin-bottom: 10px;
-    }
-    .signature {
-      margin-top: 20px;
-      text-align: right;
-      font-style: italic;
-      font-weight: bold;
-    }
+    .logo{width:84px;height:auto;margin:8px auto 6px;display:block}
+    table{width:100%;border-collapse:collapse;margin:10px 0 6px}
+    th,td{border:1px solid #e5e7eb;padding:10px}
+    th{background:#f8fafc}
+    tr:nth-child(even) td{background:#fafcff}
+    .status{font-weight:800;margin:6px 0}
+    .status.ok{color:var(--ok)}
+    .status.bad{color:var(--bad)}
+    .sig{margin-top:10px;text-align:right;font-style:italic;font-weight:700}
+
+    .actions{display:grid;gap:8px;margin-top:10px}
+    @media(min-width:520px){.actions{grid-template-columns:1fr 1fr 1fr}}
+
+    footer{margin:20px 0;color:var(--muted);font-size:12px;text-align:center}
+    .disclaimer{font-size:12px;color:var(--muted);margin-top:6px}
   </style>
 </head>
 <body>
@@ -97,98 +92,153 @@
     <p>Shekhpur Daud, Fariha, Azamgarh</p>
   </header>
 
-  <div class="container">
-    <label for="roll">Enter Roll Number:</label>
-    <input type="text" id="roll" placeholder="e.g. 101" onkeyup="if(event.key==='Enter'){showResult()}">
+  <div class="wrap">
+    <!-- 🔒 Lock / Countdown (shown before activeTime) -->
+    <section id="lock" style="display:none;">
+      <h2 style="margin:4px 0 6px;">Admission Test Result</h2>
+      <div class="muted">This portal will open at <b id="openWhenText"></b></div>
+      <div class="timer" id="timer">
+        <div class="pill"><b id="dd">00</b><span>Days</span></div>
+        <div class="pill"><b id="hh">00</b><span>Hours</span></div>
+        <div class="pill"><b id="mm">00</b><span>Minutes</span></div>
+        <div class="pill"><b id="ss">00</b><span>Seconds</span></div>
+      </div>
+      <div class="disclaimer">Please refresh when the timer ends. The form will auto-enable.</div>
+    </section>
 
-    <label for="year">Select Year:</label>
-    <select id="year">
-      <option value="2025">2025</option>
-    </select>
-
-    <button onclick="showResult()">Show Result</button>
+    <!-- 🧾 Result Form Card -->
+    <section id="portal" class="card" style="display:none;">
+      <h2 style="margin-top:0;margin-bottom:10px;">Admission Test Result Portal</h2>
+      <div class="grid grid-2">
+        <div>
+          <label for="roll">Enter Roll Number</label>
+          <input id="roll" type="text" placeholder="e.g. 101" onkeyup="if(event.key==='Enter'){showResult()}" />
+          <div class="hint">Students: 101–106 (demo)</div>
+        </div>
+        <div>
+          <label for="year">Select Year</label>
+          <select id="year"><option value="2025">2025</option></select>
+        </div>
+      </div>
+      <div class="center" style="margin-top:12px;">
+        <button id="showBtn" class="btn" onclick="showResult()">Show Result</button>
+      </div>
+      <div class="disclaimer">Powered by Super Educated Class • For admission use only</div>
+    </section>
   </div>
 
   <!-- Popup -->
   <div class="popup" id="popup">
-    <div class="popup-content" id="popupContent">
-      <!-- Result will load here -->
-    </div>
+    <div class="popup-content" id="popupContent"></div>
   </div>
 
+  <footer>© <span id="yr"></span> Super Educated Class. All rights reserved.</footer>
+
   <script>
+    // ====== SETTINGS ======
+    // Change to your go-live (local time of the viewer). Example: 4 Sept 2025, 10:00
+    const activeTime = new Date("2025-09-04T10:00:00");
+
+    // Marks scheme
     const fullMarks = { english: 16, maths: 18, science: 16 };
     const totalMarks = fullMarks.english + fullMarks.maths + fullMarks.science;
 
+    // Demo data (आप अपनी सूची यहाँ बदल/बढ़ा सकते हैं)
     const results = {
-      "101": {
-        name: "Mayank Prajapati", father: "Ramesh P.", mother: "Sunita P.", class: "6th",
-        english: 8, maths: 10, science: 7
-      },
-      "102": {
-        name: "Anshika Prajapati", father: "Rajesh P.", mother: "Meena P.", class: "7th",
-        english: 12, maths: 15, science: 14
-      },
-      "103": {
-        name: "Aradhya Prajapati", father: "Suresh P.", mother: "Rekha P.", class: "5th",
-        english: 11, maths: 14, science: 12
-      },
-      "104": {
-        name: "Indu Prajapati", father: "Mahesh P.", mother: "Shobha P.", class: "8th",
-        english: 13, maths: 15, science: 14
-      },
-      "105": {
-        name: "Chanchal Prajapati", father: "Naresh P.", mother: "Anita P.", class: "6th",
-        english: 10, maths: 13, science: 12
-      },
-      "106": {
-        name: "Shivam Prajapati", father: "Vinod P.", mother: "Suman P.", class: "7th",
-        english: 6, maths: 9, science: 8
-      }
+      "101": { name:"Mayank Prajapati",   father:"Ramesh P.", mother:"Sunita P.", class:"6th", english:8,  maths:10, science:7  },
+      "102": { name:"Anshika Prajapati",  father:"Rajesh P.", mother:"Meena P.",  class:"7th", english:12, maths:15, science:14 },
+      "103": { name:"Aradhya Prajapati",  father:"Suresh P.", mother:"Rekha P.",  class:"5th", english:11, maths:14, science:12 },
+      "104": { name:"Indu Prajapati",     father:"Mahesh P.", mother:"Shobha P.", class:"8th", english:13, maths:15, science:14 },
+      "105": { name:"Chanchal Prajapati", father:"Naresh P.", mother:"Anita P.",  class:"6th", english:10, maths:13, science:12 },
+      "106": { name:"Shivam Prajapati",   father:"Vinod P.",  mother:"Suman P.",  class:"7th", english:6,  maths:9,  science:8  }
     };
 
     let currentResult = null;
 
-    function showResult() {
+    // ====== Countdown / Gate ======
+    const lockEl = document.getElementById("lock");
+    const portalEl = document.getElementById("portal");
+    const showBtn = document.getElementById("showBtn");
+    const openWhenText = document.getElementById("openWhenText");
+    const yr = document.getElementById("yr");
+    yr.textContent = new Date().getFullYear();
+
+    function formatDT(d){
+      // nice readable local string
+      return d.toLocaleString([], { year:'numeric', month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+    }
+    openWhenText.textContent = formatDT(activeTime);
+
+    function gatekeeper(){
+      const now = new Date();
+      const diff = activeTime - now;
+
+      if(diff <= 0){
+        // Active
+        lockEl.style.display = "none";
+        portalEl.style.display = "block";
+        showBtn.disabled = false;
+        return;
+      } else {
+        lockEl.style.display = "block";
+        portalEl.style.display = "none";
+        showBtn.disabled = true;
+        // update countdown
+        const s = Math.floor(diff/1000);
+        const d = Math.floor(s/86400);
+        const h = Math.floor((s%86400)/3600);
+        const m = Math.floor((s%3600)/60);
+        const ss = s%60;
+        document.getElementById("dd").textContent = String(d).padStart(2,"0");
+        document.getElementById("hh").textContent = String(h).padStart(2,"0");
+        document.getElementById("mm").textContent = String(m).padStart(2,"0");
+        document.getElementById("ss").textContent = String(ss).padStart(2,"0");
+      }
+    }
+    gatekeeper();
+    setInterval(gatekeeper, 1000);
+
+    // ====== Result Popup ======
+    function showResult(){
       const roll = document.getElementById("roll").value.trim();
       const popup = document.getElementById("popup");
       const popupContent = document.getElementById("popupContent");
 
-      if(results[roll]) {
-        let r = results[roll];
-        let obtain = r.english + r.maths + r.science;
-        let percent = ((obtain / totalMarks) * 100).toFixed(2);
-        let status = (obtain >= 30) 
-          ? "<span style='color:green;font-weight:bold;'>You are Selected ✅</span>" 
-          : "<span style='color:red;font-weight:bold;'>You are Not Selected, Try Again ❌</span>";
+      if(!roll){ alert("Please enter Roll Number"); return; }
 
-        currentResult = {roll, ...r, obtain, percent, status};
+      if(results[roll]){
+        const r = results[roll];
+        const obtain = r.english + r.maths + r.science;
+        const percent = ((obtain/totalMarks)*100).toFixed(2);
+        const selected = obtain >= 30; // rule: total >= 30
+        const statusHtml = selected
+          ? "<span class='status ok'>You are Selected ✅</span>"
+          : "<span class='status bad'>You are Not Selected, Try Again ❌</span>";
+
+        currentResult = { roll, ...r, obtain, percent, selected };
 
         popupContent.innerHTML = `
-          <img src="logo.png" alt="Logo" class="logo">
-          <h2>Admission Test Result - ${document.getElementById("year").value}</h2>
-          <p><b>Name:</b> ${r.name}</p>
-          <p><b>Father's Name:</b> ${r.father}</p>
-          <p><b>Mother's Name:</b> ${r.mother}</p>
-          <p><b>Class:</b> ${r.class}</p>
-          <hr>
-          <table border="1" cellspacing="0" cellpadding="5" style="width:100%; text-align:center;">
-            <tr style="background:#f0f0f0;">
-              <th>Subject</th>
-              <th>Marks Obtained</th>
-              <th>Full Marks</th>
-            </tr>
+          <img src="logo.png" alt="Logo" class="logo" onerror="this.style.display='none'">
+          <h3 style="margin:6px 0 4px;">Admission Test Result - ${document.getElementById("year").value}</h3>
+          <div style="margin-bottom:6px;color:#374151">
+            <b>Name:</b> ${r.name} &nbsp; | &nbsp; <b>Class:</b> ${r.class}<br/>
+            <b>Father:</b> ${r.father} &nbsp; | &nbsp; <b>Mother:</b> ${r.mother}
+          </div>
+          <table>
+            <tr><th>Subject</th><th>Marks Obtained</th><th>Full Marks</th></tr>
             <tr><td>English</td><td>${r.english}</td><td>${fullMarks.english}</td></tr>
             <tr><td>Maths</td><td>${r.maths}</td><td>${fullMarks.maths}</td></tr>
             <tr><td>Science</td><td>${r.science}</td><td>${fullMarks.science}</td></tr>
           </table>
-          <p><b>Total Marks:</b> ${obtain}/${totalMarks}</p>
-          <p><b>Percentage:</b> ${percent}%</p>
-          <h3>Status: ${status}</h3>
-          <div class="signature">Principal / Director</div>
-          <button class="pdf-btn" onclick="downloadPDF()">Download PDF</button>
-          <button class="next-btn" onclick="nextResult()">Next Result</button>
-          <button class="close-btn" onclick="closePopup()">Close</button>
+          <div><b>Total:</b> ${obtain}/${totalMarks} &nbsp; | &nbsp; <b>Percentage:</b> ${percent}%</div>
+          <div class="${selected ? 'status ok' : 'status bad'}">${selected ? 'You are Selected ✅' : 'You are Not Selected, Try Again ❌'}</div>
+          <div class="sig">Principal / Director</div>
+
+          <div class="actions">
+            <button class="btn" onclick="downloadPDF()">Download PDF</button>
+            <button class="btn warn" onclick="nextResult()">Next Result</button>
+            <button class="btn danger" onclick="closePopup()">Close</button>
+          </div>
         `;
         popup.style.display = "flex";
       } else {
@@ -196,69 +246,81 @@
       }
     }
 
-    function closePopup() {
-      document.getElementById("popup").style.display = "none";
-    }
+    function closePopup(){ document.getElementById("popup").style.display = "none"; }
+    function nextResult(){ document.getElementById("roll").value=""; document.getElementById("roll").focus(); }
 
-    function nextResult() {
-      document.getElementById("roll").value = "";
-      document.getElementById("roll").focus();
-    }
-
-    async function downloadPDF() {
-      if (!currentResult) return;
+    // ====== PDF (with centered Heading, bold status, header/footer, optional logo) ======
+    async function downloadPDF(){
+      if(!currentResult) return;
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
 
-      try {
-        const img = new Image();
-        img.src = "logo.png"; 
-        doc.addImage(img, "PNG", 160, 10, 30, 20);
-      } catch (e) {}
+      // Header Logo (optional)
+      try{
+        const img = new Image(); img.src = "logo.png";
+        doc.addImage(img,"PNG", 180, 8, 18, 18);
+      }catch(e){}
 
-      // Coaching Name & Address Centered
-      doc.setFontSize(18);
-      doc.setFont("helvetica", "bold");
-      doc.text("Super Educated Class", 105, 20, { align: "center" });
-
+      // Centered Institute Name & Address
+      doc.setFont("helvetica","bold"); doc.setFontSize(18);
+      doc.text("Super Educated Class", 105, 18, {align:"center"});
       doc.setFontSize(14);
-      doc.setFont("helvetica", "bold");
-      doc.text("Shekhpur Daud, Fariha, Azamgarh", 105, 28, { align: "center" });
+      doc.text("Shekhpur Daud, Fariha, Azamgarh", 105, 26, {align:"center"});
+      doc.setFont("helvetica","normal"); doc.setFontSize(12);
+      doc.text(`Admission Test Result - ${document.getElementById("year").value}`, 105, 34, {align:"center"});
+      doc.line(15, 38, 195, 38);
 
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "normal");
-      doc.text(`Admission Test Result - ${document.getElementById("year").value}`, 105, 38, { align: "center" });
-      doc.line(20, 42, 190, 42);
+      // Student Info
+      const infoY = 46;
+      doc.text(`Roll No: ${currentResult.roll}`, 15, infoY);
+      doc.text(`Name: ${currentResult.name}`, 15, infoY+8);
+      doc.text(`Father's Name: ${currentResult.father}`, 15, infoY+16);
+      doc.text(`Mother's Name: ${currentResult.mother}`, 15, infoY+24);
+      doc.text(`Class: ${currentResult.class}`, 15, infoY+32);
 
-      doc.setFontSize(12);
-      doc.text(`Roll No: ${currentResult.roll}`, 20, 50);
-      doc.text(`Name: ${currentResult.name}`, 20, 58);
-      doc.text(`Father's Name: ${currentResult.father}`, 20, 66);
-      doc.text(`Mother's Name: ${currentResult.mother}`, 20, 74);
-      doc.text(`Class: ${currentResult.class}`, 20, 82);
-
+      // Table
       doc.autoTable({
-        startY: 95,
-        head: [['Subject', 'Marks Obtained', 'Full Marks']],
+        startY: infoY+42,
+        head: [['Subject','Marks Obtained','Full Marks']],
         body: [
           ['English', currentResult.english, fullMarks.english],
-          ['Maths', currentResult.maths, fullMarks.maths],
+          ['Maths',   currentResult.maths,   fullMarks.maths],
           ['Science', currentResult.science, fullMarks.science],
         ],
-        theme: 'grid'
+        theme:'grid',
+        styles:{ halign:'center' },
+        headStyles:{ fillColor:[11,92,255] }
       });
 
-      let finalY = doc.lastAutoTable.finalY + 10;
-      doc.setFont("helvetica", "bold");
-      doc.text(`Total Marks: ${currentResult.obtain}/${totalMarks}`, 20, finalY);
-      doc.text(`Percentage: ${currentResult.percent}%`, 20, finalY + 8);
-      doc.text(`Status: ${currentResult.status.replace(/<[^>]*>/g, '')}`, 20, finalY + 16);
+      let y = doc.lastAutoTable.finalY + 8;
 
-      doc.line(140, finalY + 40, 190, finalY + 40);
-      doc.text("Principal / Director", 145, finalY + 48);
+      // Totals + Percentage (bold)
+      doc.setFont("helvetica","bold");
+      doc.text(`Total Marks: ${currentResult.obtain}/${totalMarks}`, 15, y);     y+=8;
+      doc.text(`Percentage: ${currentResult.percent}%`, 15, y);                  y+=8;
+
+      // Status (bold + colored)
+      if(currentResult.selected){
+        doc.setTextColor(20,128,61);
+        doc.text("Status: You are Selected ✅", 15, y);
+      } else {
+        doc.setTextColor(193,18,31);
+        doc.text("Status: You are Not Selected, Try Again ❌", 15, y);
+      }
+      doc.setTextColor(0,0,0);
+
+      // Signature
+      doc.line(150, y+20, 195, y+20);
+      doc.text("Principal / Director", 154, y+28);
+
+      // Footer
+      const dateStr = new Date().toLocaleString();
+      doc.setFont("helvetica","normal"); doc.setFontSize(9);
+      doc.text(`Generated on ${dateStr}`, 105, 290, {align:"center"});
 
       doc.save(`Result_${currentResult.roll}.pdf`);
     }
   </script>
 </body>
 </html>
+
