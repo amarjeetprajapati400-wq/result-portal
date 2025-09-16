@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admission Test Result Portal</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f7fa; margin: 0; }
+    header { background: #002855; color: white; text-align: center; padding: 20px; }
+    header img { width: 80px; margin-bottom: 10px; }
+    .container { display: flex; justify-content: center; align-items: center; height: 70vh; }
+    .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0px 4px 8px rgba(0,0,0,0.2); width: 500px; }
+    .card h2 { text-align: center; margin-bottom: 20px; }
+    select, input, button { padding: 10px; margin: 5px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; }
+    button { cursor: pointer; }
+    #result { margin-top: 20px; display: none; text-align: center; }
+    table { border-collapse: collapse; width: 100%; margin-top: 15px; }
+    table, th, td { border: 1px solid black; padding: 8px; text-align: center; }
+    th { background: #002855; color: white; }
+    .pass { color: green; font-weight: bold; }
+    .fail { color: red; font-weight: bold; }
+    .btn-group { margin-top: 20px; display: flex; justify-content: center; gap: 15px; }
+    .btn-blue { background: #002855; color: white; }
+    .btn-orange { background: orange; color: white; }
+    .btn-red { background: red; color: white; }
+    .btn-blue:hover { background: #004080; }
+    .btn-orange:hover { background: darkorange; }
+    .btn-red:hover { background: darkred; }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="logo.png" alt="Logo">
+  <h1>SUPER EDUCATED CLASS</h1>
+  <h3>SHEKHPUR DAUD, AZAMGARH</h3>
+</header>
+
+<div class="container">
+  <div class="card">
+    <h2>Admission Test Result Portal</h2>
+    <select id="year">
+      <option value="2025">2025</option>
+    </select>
+    <input type="number" id="roll" placeholder="Enter Roll No">
+    <button class="btn-blue" onclick="viewResult()">View Result</button>
+    <div id="result"></div>
+  </div>
+</div>
+
+<script>
+const results = {
+  2025: {
+    3: { name: "Ayush Prajapati", father: "Guddu Prajapati", mother: "Sunita Prajapati", class: "3rd", maths: 16, mathsOb: 15, english: 18, engOb: 4 },
+    4: { name: "Divyansh Prajapati", father: "Monthosh Prajapati", mother: "Archna Prajapati", class: "3rd", maths: 18, mathsOb: 13, english: 16, engOb: 13 },
+    5: { name: "Suraj Prajapati", father: "Kailash Prajapati", mother: "Pramshila Prajapati", class: "7th", maths: 18, mathsOb: 17, english: 16, engOb: 13 },
+    6: { name: "Sarvoday Prajapati", father: "Babula Prajapati", mother: "Sarita Prajapati", class: "6th", maths: 18, mathsOb: 19, english: 16, engOb: 18 },
+    7: { name: "Anshika Prajapati", father: "Musafir Prajapati", mother: "Sangeeta Devi", class: "4th", maths: 18, mathsOb: 15, english: 16, engOb: 22 },
+    8: { name: "Anjali Prajapati", father: "Kailash Prajapati", mother: "Pramshila Prajapati", class: "8th", maths: 18, mathsOb: 13, english: 16, engOb: 17 },
+    9: { name: "Indu Prajapati", father: "Monthosh Prajapati", mother: "Archna Prajapati", class: "7th", maths: 18, mathsOb: 9, english: 16, engOb: 16 },
+    10: { name: "Chanchal Prajapati", father: "Monthosh Prajapati", mother: "Archna Prajapati", class: "8th", maths: 18, mathsOb: 11, english: 16, engOb: 9 },
+    1: { name: "Anshu Prajapati", father: "Dinesh Prajapati", mother: "Herawati Prajapati", class: "UKG", maths: 22, mathsOb: 16, english: 15, engOb: 11, hindi: 13, hinOb: 10 },
+    2: { name: "Aradhya Prajapati", father: "Babulal Prajapati", mother: "Sarita Prajapati", class: "UKG 2nd", maths: 15, mathsOb: 5, english: 22, engOb: 16, hindi: 13, hinOb: 12 }
+  }
+};
+
+let currentRoll = null;
+
+function viewResult(rollNo=null) {
+  // --- Time Lock Start ---
+  let now = new Date();
+  let hour = now.getHours();
+  let minute = now.getMinutes();
+
+  if (hour < 17 || (hour === 17 && minute < 0)) {
+    document.getElementById("result").innerHTML = 
+      "<p style='color:red; font-weight:bold'>Result will be available at 5:00 PM ⏰</p>";
+    document.getElementById("result").style.display = "block";
+    return;
+  }
+  // --- Time Lock End ---
+
+  const year = document.getElementById("year").value;
+  const roll = rollNo || document.getElementById("roll").value;
+  const student = results[year][roll];
+  const resultDiv = document.getElementById("result");
+
+  if (!student) {
+    resultDiv.innerHTML = "<p style='color:red'>Result Not Found!</p>";
+    resultDiv.style.display = "block";
+    return;
+  }
+
+  currentRoll = parseInt(roll);
+
+  let total = (student.mathsOb + student.engOb + (student.hinOb || 0));
+  let max = (student.maths + student.english + (student.hindi || 0));
+  let percentage = ((total / max) * 100).toFixed(2);
+
+  let status = total >= 30 ? `<span class='pass'>You are Selected ✅</span>` : `<span class='fail'>You are Not Selected ❌ Try Again</span>`;
+
+  resultDiv.innerHTML = `
+    <h3>Admission Test Result - ${year}</h3>
+    <p><b>Name:</b> ${student.name} | <b>Class:</b> ${student.class}</p>
+    <p><b>Father's Name:</b> ${student.father} | <b>Mother's Name:</b> ${student.mother}</p>
+    <table>
+      <tr><th>Subject</th><th>Full Marks</th><th>Marks Obtained</th></tr>
+      <tr><td>Maths</td><td>${student.maths}</td><td>${student.mathsOb}</td></tr>
+      <tr><td>English</td><td>${student.english}</td><td>${student.engOb}</td></tr>
+      ${student.hindi ? `<tr><td>Hindi</td><td>${student.hindi}</td><td>${student.hinOb}</td></tr>` : ""}
+      <tr><th>Total</th><th>${max}</th><th>${total}</th></tr>
+    </table>
+    <p><b>Total:</b> ${total}/${max} | <b>Percentage:</b> ${percentage}%</p>
+    <h3>Status: ${status}</h3>
+
+    <div class="btn-group">
+      <button class="btn-blue" onclick="downloadPDF(${roll})">Download PDF</button>
+      <button class="btn-orange" onclick="nextResult()">Next Result</button>
+      <button class="btn-red" onclick="closeResult()">Close</button>
+    </div>
+  `;
+  resultDiv.style.display = "block";
+}
+
+function nextResult() {
+  const year = document.getElementById("year").value;
+  let rolls = Object.keys(results[year]).map(r => parseInt(r)).sort((a,b)=>a-b);
+  let index = rolls.indexOf(currentRoll);
+  if (index >= 0 && index < rolls.length - 1) {
+    viewResult(rolls[index + 1]);
+  } else {
+    alert("No more results!");
+  }
+}
+
+function closeResult() {
+  document.getElementById("result").style.display = "none";
+}
+
+function downloadPDF(roll) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const year = document.getElementById("year").value;
+  const student = results[year][roll];
+
+  let total = (student.mathsOb + student.engOb + (student.hinOb || 0));
+  let max = (student.maths + student.english + (student.hindi || 0));
+  let percentage = ((total / max) * 100).toFixed(2);
+  let status = total >= 30 ? "You are Selected ✅" : "You are Not Selected ❌ Try Again";
+  let color = total >= 30 ? [0, 128, 0] : [255, 0, 0];
+
+  doc.setFontSize(16);
+  doc.text("SUPER EDUCATED CLASS", 65, 20);
+  doc.setFontSize(12);
+  doc.text("SHEKHPUR DAUD, AZAMGARH", 75, 28);
+
+  doc.text(`Roll No: ${roll}`, 20, 40);
+  doc.text(`Name: ${student.name}`, 20, 48);
+  doc.text(`Father's Name: ${student.father}`, 20, 56);
+  doc.text(`Mother's Name: ${student.mother}`, 20, 64);
+  doc.text(`Class: ${student.class}`, 20, 72);
+
+  doc.autoTable({
+    startY: 80,
+    head: [['Subject', 'Full Marks', 'Marks Obtained']],
+    body: [
+      ['Maths', student.maths, student.mathsOb],
+      ['English', student.english, student.engOb],
+      ...(student.hindi ? [['Hindi', student.hindi, student.hinOb]] : []),
+      ['Total', max, total]
+    ]
+  });
+
+  doc.text(`Percentage: ${percentage}%`, 20, doc.lastAutoTable.finalY + 10);
+  doc.setTextColor(...color);
+  doc.setFontSize(14);
+  doc.text(`Result Status: ${status}`, 20, doc.lastAutoTable.finalY + 20);
+
+  doc.save(`Result_${roll}.pdf`);
+}
+</script>
+
+</body>
+</html>
